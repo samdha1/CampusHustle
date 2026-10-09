@@ -1,0 +1,10 @@
+{
+  "name": "campus-hustle",
+  "private": true,
+  "description": "Root scripts used by Render to build and start the whole app as one service",
+  "scripts": {
+    "build": "npm install --prefix server && npm install --include=dev --prefix client && npm run build --prefix client",
+    "start": "node server/server.js"
+  },
+  "engines": { "node": ">=18" }
+}
