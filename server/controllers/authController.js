@@ -29,9 +29,13 @@ exports.register = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    const domain = (process.env.ALLOWED_EMAIL_DOMAIN || "").trim().toLowerCase();
-    if (domain && !email.toLowerCase().endsWith("@" + domain)) {
-      return res.status(400).json({ message: `Use your campus email (@${domain}).` });
+    // ALLOWED_EMAIL_DOMAIN may list several domains, comma-separated (e.g. "student.nitw.ac.in,nitw.ac.in")
+    const domains = (process.env.ALLOWED_EMAIL_DOMAIN || "")
+      .split(",")
+      .map((d) => d.trim().toLowerCase().replace(/^@/, ""))
+      .filter(Boolean);
+    if (domains.length && !domains.some((d) => email.toLowerCase().endsWith("@" + d))) {
+      return res.status(400).json({ message: `Use your campus email (${domains.map((d) => "@" + d).join(" or ")}).` });
     }
 
     if (await User.findOne({ email })) {
