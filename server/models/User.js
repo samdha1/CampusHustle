@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema(
     },
     // select:false -> password hash is never returned unless explicitly requested
     password: { type: String, required: true, minlength: 8, select: false },
+    department: { type: String, trim: true, maxlength: 60, default: "" },
+    bio: { type: String, trim: true, maxlength: 200, default: "" },
+    avatar: { type: String, default: "" }, // Cloudinary https URL
+    avatarPublicId: { type: String, default: "" },
   },
   { timestamps: true }
 );
@@ -28,7 +32,15 @@ userSchema.methods.matchPassword = function (plain) {
 };
 
 userSchema.methods.toSafeObject = function () {
-  return { id: this._id, name: this.name, email: this.email, createdAt: this.createdAt };
+  return {
+    id: this._id,
+    name: this.name,
+    email: this.email,
+    department: this.department,
+    bio: this.bio,
+    avatar: this.avatar,
+    createdAt: this.createdAt,
+  };
 };
 
 module.exports = mongoose.model("User", userSchema);

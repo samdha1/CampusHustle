@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { formatPrice } from "../constants.js";
+import Avatar from "../components/Avatar.jsx";
 
 // Item details + owner + contact (REQ-5)
 export default function ListingDetails() {
@@ -12,12 +13,13 @@ export default function ListingDetails() {
   const [listing, setListing] = useState(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [broken, setBroken] = useState(false);
 
   useEffect(() => {
     api.listing(id).then((d) => setListing(d.listing)).catch((e) => setError(e.message));
   }, [id]);
 
-  if (error) return <p className="error">{error} <Link to="/">Back to browse</Link></p>;
+  if (error && !listing) return <p className="error">{error} <Link to="/browse">Back to browse</Link></p>;
   if (!listing) return <p>Loading…</p>;
 
   const isOwner = listing.owner._id === user.id;
@@ -46,22 +48,29 @@ export default function ListingDetails() {
 
   return (
     <article className="details">
-      {listing.image ? (
-        <img src={listing.image} alt={listing.title} className="details__img" />
+      {listing.image && !broken ? (
+        <img src={listing.image} alt={listing.title} className="details__img" onError={() => setBroken(true)} />
       ) : (
         <div className="details__img card__img--empty" aria-hidden="true">{listing.title[0]}</div>
       )}
 
       <div className="details__info">
-        <Link to="/" className="details__back">Back to browse</Link>
+        <Link to="/browse" className="details__back">Back to browse</Link>
         <h1 className="page__title">{listing.title}</h1>
         <p className="card__price details__price">{formatPrice(listing.price)}</p>
         <p className="card__meta">{listing.category} · {listing.condition}</p>
         <p className="details__desc">{listing.description}</p>
 
-        <p className="card__meta">
-          Listed by <strong>{listing.owner.name}</strong> on {new Date(listing.createdAt).toLocaleDateString()}
-        </p>
+        <div className="seller">
+          <Avatar user={listing.owner} size={40} />
+          <div>
+            <strong>{listing.owner.name}</strong>
+            <span className="card__meta">
+              {listing.owner.department ? `${listing.owner.department} · ` : ""}
+              Listed {new Date(listing.createdAt).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
 
         {error && <p className="error" role="alert">{error}</p>}
 

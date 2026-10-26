@@ -1,14 +1,16 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { formatPrice } from "../constants.js";
 
 // `actions` lets a page add buttons (Edit / Delete) under the card.
 export default function ListingCard({ listing, actions }) {
   const to = `/listings/${listing._id}`;
+  const [broken, setBroken] = useState(false); // show the placeholder if the image can't load
   return (
     <article className="card">
       <Link to={to} aria-label={`View ${listing.title}`}>
-        {listing.image ? (
-          <img src={listing.image} alt="" className="card__img" loading="lazy" />
+        {listing.image && !broken ? (
+          <img src={listing.image} alt="" className="card__img" loading="lazy" onError={() => setBroken(true)} />
         ) : (
           <div className="card__img card__img--empty" aria-hidden="true">{listing.title[0]}</div>
         )}

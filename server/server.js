@@ -45,6 +45,7 @@ app.use(cookieParser());
 app.use("/api/auth", require("./routes/auth"));         // Module 1
 app.use("/api/listings", require("./routes/listings")); // Modules 2, 3, 4
 app.use("/api/chats", require("./routes/chats"));       // Module 5
+app.use("/api/profile", require("./routes/profile"));   // Profile
 app.get("/api/health", (req, res) => res.json({ ok: true }));
 
 // If the React app has been built (npm run build), serve it from here too.

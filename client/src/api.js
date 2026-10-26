@@ -23,6 +23,10 @@ export const api = {
   logout: () => request("/auth/logout", { method: "POST" }),
   me: () => request("/auth/me"),
 
+  // Profile
+  updateProfile: (formData) => request("/profile", { method: "PUT", body: formData }),
+  changePassword: (body) => request("/profile/password", { method: "PUT", body: JSON.stringify(body) }),
+
   // Modules 2-4: listings (create/update take FormData because of the image upload)
   listings: (params = {}) => {
     const qs = new URLSearchParams(Object.entries(params).filter(([, v]) => v !== "" && v != null));

@@ -13,5 +13,5 @@ export function ProtectedRoute({ children }) {
 export function GuestRoute({ children }) {
   const { user, loading } = useAuth();
   if (loading) return <p className="boot">Loading…</p>;
-  return user ? <Navigate to="/" replace /> : children;
+  return user ? <Navigate to="/browse" replace /> : children;
 }

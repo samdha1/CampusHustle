@@ -12,8 +12,8 @@ const validationMessage = (req) => {
   return errors.isEmpty() ? null : errors.array()[0].msg;
 };
 
-// Only the seller's name is exposed to other users (no email)
-const withOwner = (query) => query.populate("owner", "name");
+// Only public seller info is exposed to other users (never the email)
+const withOwner = (query) => query.populate("owner", "name department avatar");
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

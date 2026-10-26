@@ -7,16 +7,27 @@ cloudinary.config({
   secure: true,
 });
 
+const KINDS = {
+  // Listing photos: shrink big photos, serve the best format automatically
+  listing: {
+    folder: "campus-hustle",
+    transformation: [{ width: 1200, height: 1200, crop: "limit", quality: "auto", fetch_format: "auto" }],
+  },
+  // Profile pictures: square crop around the face
+  avatar: {
+    folder: "campus-hustle/avatars",
+    transformation: [{ width: 400, height: 400, crop: "fill", gravity: "face", quality: "auto", fetch_format: "auto" }],
+  },
+};
+
 // Upload an in-memory image (from multer) -> { url, publicId }
-exports.uploadImage = (buffer) =>
+exports.uploadImage = (buffer, kind = "listing") =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: "campus-hustle",
+        ...KINDS[kind],
         resource_type: "image",
         allowed_formats: ["jpg", "png", "webp"],
-        // Shrink big photos and serve the best format automatically
-        transformation: [{ width: 1200, height: 1200, crop: "limit", quality: "auto", fetch_format: "auto" }],
       },
       (err, result) => (err ? reject(err) : resolve({ url: result.secure_url, publicId: result.public_id }))
     );

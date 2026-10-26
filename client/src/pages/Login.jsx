@@ -19,7 +19,7 @@ export default function Login() {
     setBusy(true);
     try {
       await login(form);
-      navigate(location.state?.from?.pathname || "/", { replace: true });
+      navigate(location.state?.from?.pathname || "/browse", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
