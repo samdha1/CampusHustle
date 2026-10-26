@@ -23,4 +23,4 @@ const conversationSchema = new mongoose.Schema(
 
 conversationSchema.index({ listing: 1, buyer: 1 }, { unique: true });
 
-module.exports = mongoose.model("Conversation", conversationSchema);
+module.exports = mongoose.models.Conversation || mongoose.model("Conversation", conversationSchema);
