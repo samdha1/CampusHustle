@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
 import { useChat } from "../context/ChatContext.jsx";
@@ -11,6 +11,7 @@ import Avatar from "../components/Avatar.jsx";
 // History is loaded over REST; live messages arrive through the app-wide WebSocket (ChatContext).
 export default function Chats() {
   const { id: activeId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { connected, send, subscribe, refreshUnread } = useChat();
   const toast = useToast();
@@ -19,6 +20,7 @@ export default function Chats() {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
+  const [ending, setEnding] = useState(false);
 
   const bottomRef = useRef(null);
   // Refs let the live-message handler always see the latest values
@@ -90,6 +92,28 @@ export default function Chats() {
     setText(""); // our own copy comes back from the server, which confirms it was saved
   };
 
+  const endChat = async () => {
+    if (!activeId || ending) return;
+    const confirmed = window.confirm(
+      "End this chat? It will be removed from your list and your chat history will be cleared. The other person keeps their copy, and a new message can reopen the chat."
+    );
+    if (!confirmed) return;
+
+    setEnding(true);
+    try {
+      await api.endChat(activeId);
+      setConversations((prev) => prev?.filter((conversation) => conversation._id !== activeId) ?? prev);
+      setMessages([]);
+      refreshUnread();
+      navigate("/chats", { replace: true });
+      toast.success("Chat ended and removed from your list.");
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setEnding(false);
+    }
+  };
+
   const otherPerson = (c) => (c.buyer._id === user.id ? c.seller : c.buyer);
   const active = conversations?.find((c) => c._id === activeId);
 
@@ -158,6 +182,14 @@ export default function Chats() {
                     </span>
                   </Link>
                 )}
+                <button
+                  type="button"
+                  className="btn btn--danger btn--sm"
+                  onClick={endChat}
+                  disabled={ending}
+                >
+                  {ending ? "Ending…" : "End chat"}
+                </button>
               </header>
 
               <div className="thread__messages" aria-live="polite">

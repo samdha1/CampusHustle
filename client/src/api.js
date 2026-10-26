@@ -48,4 +48,5 @@ export const api = {
   unread: () => request("/chats/unread"),
   markRead: (conversationId) => request(`/chats/${conversationId}/read`, { method: "POST" }),
   messages: (conversationId) => request(`/chats/${conversationId}/messages`),
+  endChat: (conversationId) => request(`/chats/${conversationId}`, { method: "DELETE" }),
 };

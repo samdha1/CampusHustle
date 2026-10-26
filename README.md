@@ -13,6 +13,7 @@ Campus Hustle is a campus-focused marketplace where students can buy and sell us
 - Browse, search, filter and sort listings.
 - View listing details and seller information.
 - Start a conversation with a seller and exchange messages in real time.
+- End a conversation from its chat page; this hides it and clears your own history without deleting the other participant's copy.
 - Manage your own listings and profile.
 
 ## Tech stack
@@ -167,6 +168,7 @@ client/src/
 | GET | /api/chats | yes | My conversations |
 | GET | /api/chats/ws-ticket | yes | 60-second ticket to open the WebSocket |
 | GET | /api/chats/:id/messages | participant | Message history |
+| DELETE | /api/chats/:id | participant | Hide the chat and clear the current participant's history |
 
 ## WebSocket (`/ws`)
 
