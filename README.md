@@ -1,8 +1,45 @@
 # Campus Hustle
 
-A student-focused marketplace to buy, sell and chat about items within a campus community.
+**Live website:** [https://campushustle-fffp.onrender.com](https://campushustle-fffp.onrender.com)
 
-**Stack:** React (Vite) · Node.js + Express · MongoDB (Mongoose) · WebSocket (`ws`) · REST
+## Project aim
+
+Campus Hustle is a campus-focused marketplace where students can buy and sell useful items with other students. Students can post items they no longer need, find affordable things nearby, and contact sellers through the website. The aim is to help useful items find a new owner instead of going to waste, while keeping the marketplace within the campus community.
+
+## Features
+
+- Register, log in and access protected pages.
+- Create, edit and delete your own listings, including optional photos.
+- Browse, search, filter and sort listings.
+- View listing details and seller information.
+- Start a conversation with a seller and exchange messages in real time.
+- Manage your own listings and profile.
+
+## Tech stack
+
+| Technology | Purpose | Why it was chosen |
+|---|---|---|
+| React | Website interface | Makes it practical to build interactive pages from reusable components. |
+| Vite | Frontend development and build tool | Provides a fast local development server and creates the production frontend build. |
+| Node.js + Express | Backend and REST API | Handles account, listing, profile and chat requests in JavaScript. |
+| MongoDB + Mongoose | Database and data models | Stores users, listings, conversations and messages with a flexible document model. |
+| WebSocket (`ws`) | Live chat | Delivers new messages immediately without users needing to refresh. |
+| Cloudinary | Listing photos | Stores uploaded images separately from the application server. |
+| Render | Hosting | Hosts the website, API and WebSocket service for the deployed project. |
+
+## How it works
+
+The React website sends normal API requests to the Express backend. The backend validates each request, checks permissions, and reads or writes data in MongoDB. Listing photos are uploaded to Cloudinary, with their URLs stored alongside listing data.
+
+For chat, the API creates or finds a conversation and loads saved history. The browser then opens an authenticated WebSocket connection. When a participant sends a message, the server saves it in MongoDB and delivers it to both participants in real time.
+
+```text
+Student's browser
+  └── React website
+        ├── REST API ─────> Express ─────> MongoDB
+        └── WebSocket ────> Chat server ─> MongoDB
+        Listing photos ─────────────────> Cloudinary
+```
 
 | Module | What it does | Requirements |
 |---|---|---|
@@ -13,27 +50,35 @@ A student-focused marketplace to buy, sell and chat about items within a campus 
 | 5. Real-time chat | WebSocket chat between buyer and item owner | REQ-6 |
 | (6) My listings | Page to manage your own listings | – |
 
-## Setup (local)
+## Run locally (Windows PowerShell)
 
-Requires Node 18+, a MongoDB database (local or a free Atlas cluster) and a free [Cloudinary](https://cloudinary.com) account for images.
+Requires Node.js 18 or newer, a MongoDB database (local or a free Atlas cluster), and a [Cloudinary](https://cloudinary.com) account for listing photos.
 
 **Cloudinary:** sign up, open the Dashboard, and copy the *Cloud name*, *API Key* and *API Secret*.
 
-```bash
-# 1. API + WebSocket server
-cd server
-cp .env.example .env      # Windows: copy .env.example .env
-# edit .env: JWT_SECRET, MONGO_URI and the three CLOUDINARY_* values
-npm install
-npm run dev               # http://localhost:5000
+Create `server/.env` from the example and add your database, JWT, and Cloudinary settings:
 
-# 2. Frontend (new terminal)
-cd client
-npm install
-npm run dev               # http://localhost:5173
+```powershell
+Copy-Item server/.env.example server/.env
 ```
 
-Open http://localhost:5173 and register.
+Start the API and WebSocket server in the first terminal:
+
+```powershell
+cd server
+npm install
+npm run dev
+```
+
+Start the frontend in a second terminal:
+
+```powershell
+cd client
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) and register. During development, Vite proxies API and WebSocket requests to the backend on port 5000.
 
 **Try the chat:** register a second account in a private/incognito window, list an item with account A, open it with account B and click "Message". Messages appear instantly on both sides.
 
@@ -44,7 +89,7 @@ Open http://localhost:5173 and register.
 | `MONGO_URI` | MongoDB connection string |
 | `JWT_SECRET` | Secret used to sign login tokens |
 | `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | Image storage credentials |
-| `CLIENT_ORIGIN` | Website address(es) allowed to use the API (comma-separated). Default `http://localhost:5173`. On Render it is filled in automatically for the single-service setup |
+| `CLIENT_ORIGIN` | Website address(es) allowed to use the API (comma-separated). In development, `http://localhost:5173` and `http://127.0.0.1:5173` are allowed automatically. Set the exact production origin(s); on Render it is filled in automatically for the single-service setup |
 | `ALLOWED_EMAIL_DOMAIN` | Optional. e.g. `youruni.edu.in` to allow only campus emails |
 | `PORT` | Set automatically by Render. Default 5000 |
 
@@ -53,6 +98,8 @@ Images go straight to Cloudinary (the database stores only the image URL), so no
 ## Deploying
 
 > **Important:** Vercel runs serverless functions, which cannot hold a WebSocket connection open, so the **backend (with chat) must run on Render**. The frontend can be on Render too, or on Vercel.
+
+The live project is deployed at **[https://campushustle-fffp.onrender.com](https://campushustle-fffp.onrender.com)**. The current deployment uses the single-service Render setup below.
 
 First, for either option:
 1. Push the project to GitHub (make sure `.env` is **not** committed).
@@ -63,7 +110,9 @@ First, for either option:
 1. Render dashboard -> **New** -> **Blueprint** -> pick your repo. It reads `render.yaml`.
    (Or **New -> Web Service** with Build command `npm run build` and Start command `npm start`.)
 2. Fill in the secrets it asks for: `MONGO_URI`, the three `CLOUDINARY_*` values (and optionally `ALLOWED_EMAIL_DOMAIN`). `JWT_SECRET` is generated for you.
-3. Deploy. Your site is at `https://campus-hustle.onrender.com` (or similar). The same address serves the React app, the API and the WebSocket, so no extra settings are needed.
+3. Deploy. The live site is [https://campushustle-fffp.onrender.com](https://campushustle-fffp.onrender.com). The same address serves the React app, the API and the WebSocket, so no extra settings are needed.
+
+To deploy future changes, push them to the GitHub branch connected to Render. Render redeploys automatically if auto-deploy is enabled; otherwise, use **Manual Deploy** in the Render dashboard. Check the deploy logs and test the live site after deployment.
 
 ### Option B: frontend on Vercel + backend on Render
 
