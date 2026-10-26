@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-
+const Conversation = require("../models/Conversation");
+const Message = require("../models/Message");
 // One conversation per (listing, interested buyer). The seller is the listing owner.
 const conversationSchema = new mongoose.Schema(
   {
