@@ -66,6 +66,12 @@ exports.start = async (req, res) => {
     }
   }
 
+  const hiddenForUser = hiddenField(conversation, req.user._id);
+  if (conversation[hiddenForUser]) {
+    await Conversation.updateOne({ _id: conversation._id }, { $set: { [hiddenForUser]: false } });
+    conversation[hiddenForUser] = false;
+  }
+
   res.status(200).json({ conversation });
 };
 

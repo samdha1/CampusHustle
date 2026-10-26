@@ -13,7 +13,7 @@ Campus Hustle is a campus-focused marketplace where students can buy and sell us
 - Browse, search, filter and sort listings.
 - View listing details and seller information.
 - Start a conversation with a seller and exchange messages in real time.
-- End a conversation from its chat page; this hides it and clears your own history without deleting the other participant's copy.
+- End a conversation from its chat page; this hides it and clears your own history without deleting the other participant's copy. Open the listing and select **Message** to reopen it later.
 - Manage your own listings and profile.
 
 ## Tech stack
