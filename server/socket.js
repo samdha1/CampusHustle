@@ -8,6 +8,7 @@ const allowedOrigins = require("./config/origins");
 const { verifyTicket } = require("./utils/wsTicket");
 const Conversation = require("./models/Conversation");
 const Message = require("./models/Message");
+const Listing = require("./models/Listing");
 
 const send = (ws, payload) => ws.readyState === 1 && ws.send(JSON.stringify(payload));
 
@@ -30,11 +31,13 @@ module.exports = function setupSocket(server) {
       // Authenticate with the short-lived ticket from GET /api/chats/ws-ticket
       const ticket = new URL(req.url, "http://localhost").searchParams.get("ticket");
       if (!ticket) return reject("401 Unauthorized");
-      const user = await User.findById(verifyTicket(ticket)).select("_id");
+      const user = await User.findById(verifyTicket(ticket)).select("_id name avatar");
       if (!user) return reject("401 Unauthorized");
 
       wss.handleUpgrade(req, socket, head, (ws) => {
         ws.userId = String(user._id);
+        ws.userName = user.name;
+        ws.userAvatar = user.avatar;
         wss.emit("connection", ws);
       });
     } catch {
@@ -79,14 +82,28 @@ module.exports = function setupSocket(server) {
         }
 
         const message = await Message.create({ conversation: convo._id, sender: ws.userId, text });
-        convo.lastMessage = text.slice(0, 80);
-        convo.lastMessageAt = message.createdAt;
-        await convo.save();
+
+        // Atomic update: store the preview and add 1 to the OTHER person's unread counter
+        const senderIsBuyer = convo.buyer.equals(ws.userId);
+        const firstMessage = !convo.lastMessage;
+        const lastMessage = text.slice(0, 80);
+        await Conversation.updateOne(
+          { _id: convo._id },
+          { $set: { lastMessage, lastMessageAt: message.createdAt, hiddenBuyer: false, hiddenSeller: false }, $inc: { [senderIsBuyer ? "unreadSeller" : "unreadBuyer"]: 1 } }
+        );
+        const listing = await Listing.findById(convo.listing).select("title");
 
         const payload = {
           type: "message",
           message: { _id: message._id, conversation: convo._id, sender: ws.userId, text, createdAt: message.createdAt },
-          conversation: { _id: convo._id, lastMessage: convo.lastMessage, lastMessageAt: convo.lastMessageAt },
+          conversation: {
+            _id: convo._id,
+            lastMessage,
+            lastMessageAt: message.createdAt,
+            listingTitle: listing?.title || "",
+            firstMessage, // true for the very first message: tells a seller that someone is interested
+          },
+          from: { id: ws.userId, name: ws.userName, avatar: ws.userAvatar },
         };
         // Deliver to both people (the sender's copy doubles as the "sent" confirmation)
         new Set([String(convo.buyer), String(convo.seller)]).forEach((id) =>

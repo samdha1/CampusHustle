@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
-import { formatPrice } from "../constants.js";
+import { useToast } from "../context/ToastContext.jsx";
+import { formatPrice, timeAgo } from "../constants.js";
 import Avatar from "../components/Avatar.jsx";
 
 // Item details + owner + contact (REQ-5)
 export default function ListingDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [listing, setListing] = useState(null);
   const [error, setError] = useState("");
@@ -26,12 +28,12 @@ export default function ListingDetails() {
 
   const contact = async () => {
     setBusy(true);
-    setError("");
     try {
       const { conversation } = await api.startChat(listing._id);
+      toast.success(`Chat with ${listing.owner.name} is ready. Say hello!`);
       navigate(`/chats/${conversation._id}`);
     } catch (e) {
-      setError(e.message);
+      toast.error(e.message);
       setBusy(false);
     }
   };
@@ -40,37 +42,43 @@ export default function ListingDetails() {
     if (!window.confirm(`Delete "${listing.title}"? This can't be undone.`)) return;
     try {
       await api.deleteListing(listing._id);
+      toast.success("Listing deleted.");
       navigate("/my-listings");
     } catch (e) {
-      setError(e.message);
+      toast.error(e.message);
     }
   };
 
   return (
     <article className="details">
-      {listing.image && !broken ? (
-        <img src={listing.image} alt={listing.title} className="details__img" onError={() => setBroken(true)} />
-      ) : (
-        <div className="details__img card__img--empty" aria-hidden="true">{listing.title[0]}</div>
-      )}
+      <div className="details__media">
+        {listing.image && !broken ? (
+          <img src={listing.image} alt={listing.title} className="details__img" onError={() => setBroken(true)} />
+        ) : (
+          <div className="details__img card__img--empty" aria-hidden="true">{listing.title[0]}</div>
+        )}
+      </div>
 
       <div className="details__info">
-        <Link to="/browse" className="details__back">Back to browse</Link>
-        <h1 className="page__title">{listing.title}</h1>
-        <p className="card__price details__price">{formatPrice(listing.price)}</p>
-        <p className="card__meta">{listing.category} · {listing.condition}</p>
+        <Link to="/browse" className="details__back">← Back to browse</Link>
+        <div className="details__tags">
+          <span className="tag">{listing.category}</span>
+          <span className="tag tag--green">{listing.condition}</span>
+        </div>
+        <h1 className="details__title">{listing.title}</h1>
+        <p className="details__price">{formatPrice(listing.price)}</p>
         <p className="details__desc">{listing.description}</p>
 
-        <div className="seller">
-          <Avatar user={listing.owner} size={40} />
+        <Link to={isOwner ? "/profile" : `/users/${listing.owner._id}`} className="seller">
+          <Avatar user={listing.owner} size={48} />
           <div>
-            <strong>{listing.owner.name}</strong>
+            <strong>{isOwner ? "You" : listing.owner.name}</strong>
             <span className="card__meta">
               {listing.owner.department ? `${listing.owner.department} · ` : ""}
-              Listed {new Date(listing.createdAt).toLocaleDateString()}
+              Listed {timeAgo(listing.createdAt)}
             </span>
           </div>
-        </div>
+        </Link>
 
         {error && <p className="error" role="alert">{error}</p>}
 
@@ -81,7 +89,7 @@ export default function ListingDetails() {
               <button className="btn btn--danger" onClick={remove}>Delete</button>
             </>
           ) : (
-            <button onClick={contact} disabled={busy} className="btn">
+            <button onClick={contact} disabled={busy} className="btn btn--lg">
               {busy ? "Opening chat…" : `Message ${listing.owner.name}`}
             </button>
           )}

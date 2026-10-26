@@ -43,11 +43,6 @@ export default function Landing() {
             )}
           </div>
         </div>
-        <div className="hero__art" aria-hidden="true">
-          <span className="shape shape--blue" />
-          <span className="shape shape--tan" />
-          <span className="shape shape--blue2" />
-        </div>
       </section>
 
       <section className="section">

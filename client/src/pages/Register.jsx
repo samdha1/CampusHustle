@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 export default function Register() {
   const { register } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", email: "", password: "", confirm: "" });
   const [error, setError] = useState("");
@@ -23,7 +25,8 @@ export default function Register() {
 
     setBusy(true);
     try {
-      await register({ name: form.name, email: form.email, password: form.password });
+      const u = await register({ name: form.name, email: form.email, password: form.password });
+      toast.success(`Welcome to Campus Hustle, ${u.name.split(" ")[0]}!`);
       navigate("/browse", { replace: true });
     } catch (err) {
       setError(err.message);
@@ -53,7 +56,7 @@ export default function Register() {
 
         {error && <p className="error" role="alert">{error}</p>}
 
-        <button type="submit" disabled={busy}>{busy ? "Creating account…" : "Create account"}</button>
+        <button type="submit" className="btn btn--block" disabled={busy}>{busy ? "Creating account…" : "Create account"}</button>
       </form>
       <p className="switch">
         Already registered? <Link to="/login">Log in</Link>

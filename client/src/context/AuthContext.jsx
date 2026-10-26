@@ -11,8 +11,16 @@ export function AuthProvider({ children }) {
     api.me().then((d) => setUser(d.user)).catch(() => setUser(null)).finally(() => setLoading(false));
   }, []);
 
-  const login = async (creds) => setUser((await api.login(creds)).user);
-  const register = async (data) => setUser((await api.register(data)).user);
+  const login = async (creds) => {
+    const { user: u } = await api.login(creds);
+    setUser(u);
+    return u;
+  };
+  const register = async (data) => {
+    const { user: u } = await api.register(data);
+    setUser(u);
+    return u;
+  };
   const logout = async () => {
     await api.logout();
     setUser(null);

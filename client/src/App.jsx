@@ -8,6 +8,7 @@ import ListingForm from "./pages/ListingForm.jsx";
 import ListingDetails from "./pages/ListingDetails.jsx";
 import Chats from "./pages/Chats.jsx";
 import Profile from "./pages/Profile.jsx";
+import UserProfile from "./pages/UserProfile.jsx";
 import Layout from "./components/Layout.jsx";
 import { ProtectedRoute, GuestRoute } from "./components/RouteGuards.jsx";
 
@@ -31,6 +32,7 @@ export default function App() {
           <Route path="/chats" element={<Chats />} />
           <Route path="/chats/:id" element={<Chats />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/users/:id" element={<UserProfile />} />
         </Route>
       </Route>
 

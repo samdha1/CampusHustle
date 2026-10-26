@@ -23,6 +23,9 @@ export const api = {
   logout: () => request("/auth/logout", { method: "POST" }),
   me: () => request("/auth/me"),
 
+  // Public seller profile
+  user: (id) => request(`/users/${id}`),
+
   // Profile
   updateProfile: (formData) => request("/profile", { method: "PUT", body: formData }),
   changePassword: (body) => request("/profile/password", { method: "PUT", body: JSON.stringify(body) }),
@@ -42,5 +45,7 @@ export const api = {
   chats: () => request("/chats"),
   startChat: (listingId) => request("/chats", { method: "POST", body: JSON.stringify({ listingId }) }),
   wsTicket: () => request("/chats/ws-ticket"),
+  unread: () => request("/chats/unread"),
+  markRead: (conversationId) => request(`/chats/${conversationId}/read`, { method: "POST" }),
   messages: (conversationId) => request(`/chats/${conversationId}/messages`),
 };

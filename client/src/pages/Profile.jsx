@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 import Avatar from "../components/Avatar.jsx";
 
 const none = { type: "", text: "" };
 
 export default function Profile() {
   const { user, setUser } = useAuth();
+  const toast = useToast();
 
   // ----- details form -----
   const [form, setForm] = useState({ name: user.name, department: user.department || "", bio: user.bio || "" });
@@ -53,9 +55,10 @@ export default function Profile() {
       setFile(null);
       setRemoveAvatar(false);
       if (fileRef.current) fileRef.current.value = "";
-      setStatus({ type: "success", text: "Profile updated." });
+      toast.success("Profile updated.");
     } catch (err) {
       setStatus({ type: "error", text: err.message });
+      toast.error(err.message);
     } finally {
       setBusy(false);
     }
@@ -80,9 +83,10 @@ export default function Profile() {
     try {
       await api.changePassword({ currentPassword: pw.currentPassword, newPassword: pw.newPassword });
       setPw({ currentPassword: "", newPassword: "", confirm: "" });
-      setPwStatus({ type: "success", text: "Password updated." });
+      toast.success("Password updated.");
     } catch (err) {
       setPwStatus({ type: "error", text: err.message });
+      toast.error(err.message);
     } finally {
       setPwBusy(false);
     }
@@ -139,7 +143,7 @@ export default function Profile() {
           {removeAvatar && <small>The photo will be removed when you save.</small>}
 
           <Status s={status} />
-          <button type="submit" disabled={busy}>{busy ? "Saving…" : "Save changes"}</button>
+          <button type="submit" className="btn btn--block" disabled={busy}>{busy ? "Saving…" : "Save changes"}</button>
         </form>
       </section>
 
@@ -157,7 +161,7 @@ export default function Profile() {
           <input id="confirm" name="confirm" type="password" autoComplete="new-password" value={pw.confirm} onChange={updatePw} required />
 
           <Status s={pwStatus} />
-          <button type="submit" disabled={pwBusy}>{pwBusy ? "Updating…" : "Update password"}</button>
+          <button type="submit" className="btn btn--block" disabled={pwBusy}>{pwBusy ? "Updating…" : "Update password"}</button>
         </form>
       </section>
     </div>

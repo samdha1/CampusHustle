@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../api.js";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 import { CATEGORIES, CONDITIONS } from "../constants.js";
 
 const empty = { title: "", description: "", price: "", category: "Other", condition: "Good" };
@@ -11,6 +12,7 @@ export default function ListingForm() {
   const { id } = useParams();
   const editing = Boolean(id);
   const { user } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [form, setForm] = useState(empty);
@@ -59,9 +61,11 @@ export default function ListingForm() {
 
       if (editing) await api.updateListing(id, data);
       else await api.createListing(data);
+      toast.success(editing ? "Listing updated." : "Listing published! Buyers can now message you.");
       navigate("/my-listings");
     } catch (err) {
       setError(err.message);
+      toast.error(err.message);
     } finally {
       setBusy(false);
     }
@@ -109,7 +113,7 @@ export default function ListingForm() {
         {error && <p className="error" role="alert">{error}</p>}
 
         <div className="row row--actions">
-          <button type="submit" disabled={busy}>
+          <button type="submit" className="btn" disabled={busy}>
             {busy ? "Saving…" : editing ? "Save changes" : "Publish listing"}
           </button>
           <button type="button" className="btn btn--ghost" onClick={() => navigate(-1)}>Cancel</button>

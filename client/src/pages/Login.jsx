@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import AuthLayout from "../components/AuthLayout.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useToast } from "../context/ToastContext.jsx";
 
 export default function Login() {
   const { login } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
   const location = useLocation();
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,7 +20,8 @@ export default function Login() {
     setError("");
     setBusy(true);
     try {
-      await login(form);
+      const u = await login(form);
+      toast.success(`Welcome back, ${u.name.split(" ")[0]}!`);
       navigate(location.state?.from?.pathname || "/browse", { replace: true });
     } catch (err) {
       setError(err.message);
@@ -41,7 +44,7 @@ export default function Login() {
 
         {error && <p className="error" role="alert">{error}</p>}
 
-        <button type="submit" disabled={busy}>{busy ? "Logging in…" : "Log in"}</button>
+        <button type="submit" className="btn btn--block" disabled={busy}>{busy ? "Logging in…" : "Log in"}</button>
       </form>
       <p className="switch">
         New to Campus Hustle? <Link to="/register">Create an account</Link>

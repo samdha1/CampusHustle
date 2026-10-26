@@ -28,7 +28,7 @@ const UPLOAD_FAILED = { message: "Image upload failed. Please try again." };
 
 // GET /api/listings?q=&category=&condition=&minPrice=&maxPrice=&sort=   (REQ-4: browse, search, filter)
 exports.getAll = async (req, res) => {
-  const { q, category, condition, minPrice, maxPrice, sort } = req.query;
+  const { q, category, condition, minPrice, maxPrice, sort, owner } = req.query;
   const filter = {};
 
   if (typeof q === "string" && q.trim()) {
@@ -37,6 +37,7 @@ exports.getAll = async (req, res) => {
   }
   if (CATEGORIES.includes(category)) filter.category = category;
   if (CONDITIONS.includes(condition)) filter.condition = condition;
+  if (typeof owner === "string" && mongoose.isValidObjectId(owner)) filter.owner = owner; // a seller's public profile
 
   const price = {};
   if (minPrice !== undefined && minPrice !== "" && Number.isFinite(Number(minPrice))) price.$gte = Number(minPrice);
