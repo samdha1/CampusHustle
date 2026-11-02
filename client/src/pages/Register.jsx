@@ -38,7 +38,6 @@ export default function Register() {
   return (
     <AuthLayout
       heading="Create your account"
-      blurb="List what you don't need. Find what you do. Keep it on campus."
     >
       <form onSubmit={submit} noValidate>
         <label htmlFor="name">Full name</label>

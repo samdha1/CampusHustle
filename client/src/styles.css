@@ -1,7 +1,3 @@
-/* =========================================================
-   Campus Hustle: design system
-   Palette from the project deck: navy, blue, tan, green.
-   ========================================================= */
 :root {
   --navy: #1d3149;
   --navy-dark: #14233a;
@@ -222,17 +218,25 @@ small { color: var(--muted); margin-top: 0.3rem; }
 .current-img img { width: 6rem; height: 4.5rem; object-fit: cover; border-radius: 10px; }
 
 /* ---------- Profiles ---------- */
-.profile { max-width: 36rem; }
-.profile > .page__title { margin-bottom: 1.25rem; }
+.profile { max-width: 36rem; margin: 0 auto; }
+.profile > .page__title { margin-bottom: 1.25rem; text-align: center; }
 .formpage .page__title { margin-bottom: 0.4rem; }
 .panel { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow); }
 .panel__title { font-family: "Archivo", system-ui, sans-serif; font-stretch: 125%; font-weight: 800; color: var(--navy); font-size: 1.15rem; margin: 0 0 0.5rem; }
 .profile__head { display: flex; align-items: center; gap: 1.25rem; margin-bottom: 0.5rem; }
 .profile__head > div { display: flex; flex-direction: column; }
 .profile__name { font-size: 1.3rem; color: var(--navy); }
-.pubprofile { display: flex; align-items: center; gap: 1.5rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+.public-profile { max-width: 62rem; margin: 0 auto; }
+.public-profile__state { text-align: center; }
+.pubprofile { display: grid; justify-items: center; gap: 1rem; text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 2rem; margin: 0 auto 2.5rem; box-shadow: var(--shadow); }
+.pubprofile > div { min-width: 0; }
+.pubprofile .page__title { font-size: 1.9rem; }
 .pubprofile__dept { margin: 0.2rem 0 0; font-weight: 600; color: var(--blue); }
-.pubprofile__bio { margin: 0.5rem 0; max-width: 50ch; }
+.pubprofile__bio { margin: 0.5rem auto; max-width: 50ch; }
+.pubprofile .card__meta { display: block; }
+.public-profile__listings > .section__title { text-align: center; margin-bottom: 1.25rem; }
+.public-profile__grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 20rem)); justify-content: center; }
+.public-profile__empty { text-align: center; color: var(--muted); margin: 0; }
 
 /* ---------- Chat ---------- */
 .chats { display: grid; grid-template-columns: 21rem minmax(0, 1fr); height: calc(100vh - 14rem); min-height: 28rem; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
@@ -308,8 +312,6 @@ small { color: var(--muted); margin-top: 0.3rem; }
 
   .details { grid-template-columns: 1fr; gap: 1.25rem; }
   .row { grid-template-columns: 1fr; }
-  .pubprofile { flex-direction: column; text-align: center; }
-
   .chats { grid-template-columns: 1fr; height: calc(100vh - 15rem); }
   .chats--open .chats__list { display: none; }
   .chats:not(.chats--open) .chats__thread { display: none; }

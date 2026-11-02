@@ -21,12 +21,18 @@ export default function UserProfile() {
     api.listings({ owner: id }).then((d) => setListings(d.listings)).catch(() => setListings([]));
   }, [id]);
 
-  if (me.id === id) return <Navigate to="/profile" replace />;
-  if (error) return <p className="error">{error} <Link to="/browse">Back to browse</Link></p>;
-  if (!person) return <p>Loading…</p>;
+  if (me?.id === id) return <Navigate to="/profile" replace />;
+  if (error) {
+    return (
+      <div className="public-profile public-profile__state">
+        <p className="error">{error} <Link to="/browse">Back to browse</Link></p>
+      </div>
+    );
+  }
+  if (!person) return <div className="public-profile public-profile__state" role="status">Loading profile…</div>;
 
   return (
-    <>
+    <div className="public-profile">
       <section className="pubprofile">
         <Avatar user={person} size={96} />
         <div>
@@ -37,14 +43,16 @@ export default function UserProfile() {
         </div>
       </section>
 
-      <h2 className="section__title">Selling now</h2>
-      {!listings && <p>Loading listings…</p>}
-      {listings && listings.length === 0 && <p className="page__sub">{person.name} has nothing listed right now.</p>}
-      {listings && listings.length > 0 && (
-        <div className="grid">
-          {listings.map((l) => <ListingCard key={l._id} listing={l} />)}
-        </div>
-      )}
-    </>
+      <section className="public-profile__listings" aria-labelledby="public-listings-title">
+        <h2 className="section__title" id="public-listings-title">Selling now</h2>
+        {!listings && <p className="public-profile__empty" role="status">Loading listings…</p>}
+        {listings && listings.length === 0 && <p className="public-profile__empty">{person.name} has nothing listed right now.</p>}
+        {listings && listings.length > 0 && (
+          <div className="grid public-profile__grid">
+            {listings.map((l) => <ListingCard key={l._id} listing={l} />)}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }

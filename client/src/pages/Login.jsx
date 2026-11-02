@@ -33,7 +33,6 @@ export default function Login() {
   return (
     <AuthLayout
       heading="Log in"
-      blurb="Buy, sell and chat about items with students on your campus."
     >
       <form onSubmit={submit} noValidate>
         <label htmlFor="email">Email</label>
